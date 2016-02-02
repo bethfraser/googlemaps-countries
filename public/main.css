@@ -1,7 +1,10 @@
 body {
   background-image: url('https://upload.wikimedia.org/wikipedia/commons/e/ec/World_map_blank_without_borders.svg');
-  background-size: cover;
-  font-family: Verdana;
+  background-size: 100%;
+  background-attachment: fixed;
+  font-family: 'Dosis', sans-serif;
+  font-size: 1.2em;
+
 }
 
 .box {
@@ -18,7 +21,12 @@ h1 {
   margin: 10px;
 }
 
-ul {
+h3 {
+  margin: 5px;
+  padding: 0;
+}
+
+ul, #countryBorders {
   list-style: none;
   margin: 0 auto;
   padding: 10px;
@@ -26,8 +34,16 @@ ul {
   max-width: 50%;
 }
 
-select {
+select, button {
   padding: 3px;
   font-size: 1em;
   border: 0;
+  font-family: 'Dosis', sans-serif;
 }
+
+button {
+  background-color: white;
+  margin: 5px 10px;
+}
+
+
