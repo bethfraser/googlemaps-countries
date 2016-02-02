@@ -46,4 +46,8 @@ button {
   margin: 5px 10px;
 }
 
+#countryInfo {
+  display: none;
+}
+
 

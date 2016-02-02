@@ -25,6 +25,7 @@ window.onload = function(){
   var countryToLoad = JSON.parse(JSONcountry);
 
   var makeList = function(name, population, capital){
+    countryInfo.style.display = "block";
     makeListItem("Country: ", name);
     makeListItem("Capital: ", capital);
     makeListItem("Population: ", population);
@@ -35,6 +36,7 @@ window.onload = function(){
     li.innerText = description + data;
     countryInfo.appendChild(li);
   }
+
 
   if (countryToLoad) {
     makeList(countryToLoad.countryname, Number(countryToLoad.countrypopulation).toLocaleString(), countryToLoad.countrycapital);
@@ -51,6 +53,32 @@ window.onload = function(){
     var regions = [];
 
     var countries = JSON.parse(request.responseText);
+
+    var makeBordersItems = function(country){
+      
+      if(country.borders == false){
+        countryBorders.style.display = "none";
+        bordersTitle.style.display = "none";
+      }
+      else {
+        var borders = country.borders
+        for(var border of borders){
+          for (country of countries){
+            if(country.alpha3Code === border){
+             countryBorders.style.display = "block";
+             bordersTitle.style.display = "inline-block";
+             var button = document.createElement('button');
+             button.innerText = country.name;
+             countryBorders.appendChild(button);
+            }
+          }
+        }
+      }
+    }
+
+
+    makeBordersItems(countryToLoad);
+
     for(country of countries){
       var listItem = document.createElement("option");
       listItem.innerText = country.name;
@@ -68,11 +96,9 @@ window.onload = function(){
     }
 
 
-
     var loadCountryData = function(){
-     
+
       var name = select.selectedOptions[0].innerText;
-      
       countryInfo.innerText = "";
       countryBorders.innerText = "";
 
@@ -80,62 +106,40 @@ window.onload = function(){
         if(country.name == name){
           var population = country.population;
           var capital = country.capital;
+          var borders = country.borders;
           var countryToSave = {
             countryname: name,
             countrypopulation: population,
-            countrycapital: capital
+            countrycapital: capital,
+            borders: borders
           }
 
           var countryString = JSON.stringify(countryToSave);
           localStorage.setItem("saved country", countryString);
 
           makeList(name, Number(population).toLocaleString(), capital);
-        
+          makeBordersItems(country);
+       }
+     }
+   }
 
-          if(country.borders == false){
-            countryBorders.style.display = "none";
-            bordersTitle.style.display = "none";
-          }
-          else {
-         var borders = country.borders
-         for(var border of borders){
-           for (country of countries){
-             if(country.alpha3Code === border){
-              countryBorders.style.display = "block";
-              bordersTitle.style.display = "inline-block";
-               var button = document.createElement('button');
-               button.innerText = country.name;
-
-              countryBorders.appendChild(button);
-
-
-
-             }
-          }
-
+   var filterCountries = function(){
+    select.innerHTML = "";
+    var region = regionSelect.selectedOptions[0].innerText;
+    if (region === "Other"){
+      region = "";
+    }
+    for(country of countries){
+      if(country.region === region){
+        var listItem = document.createElement("option");
+        listItem.innerText = country.name;
+        select.appendChild(listItem);
       }
     }
-    }
-    }
- }
-
- var filterCountries = function(){
-  select.innerHTML = "";
-  var region = regionSelect.selectedOptions[0].innerText;
-  if (region === "Other"){
-    region = "";
   }
-  for(country of countries){
-    if(country.region === region){
-      var listItem = document.createElement("option");
-      listItem.innerText = country.name;
-      select.appendChild(listItem);
-    }
-  }
-}
 
-select.onchange = loadCountryData;
-regionSelect.onchange = filterCountries;
+  select.onchange = loadCountryData;
+  regionSelect.onchange = filterCountries;
 }
 
 };
