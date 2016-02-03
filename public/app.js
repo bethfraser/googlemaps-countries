@@ -56,13 +56,15 @@ window.onload = function(){
 
     var makeBordersItems = function(country){
       
-      if(country.borders == false){
-        countryBorders.style.display = "none";
-        bordersTitle.style.display = "none";
-      }
-      else {
+      // if(country.borders == false){
+      //   countryBorders.style.display = "none";
+      //   bordersTitle.style.display = "none";
+      // }
+
+      
         var borders = country.borders
         for(var border of borders){
+
           for (country of countries){
             if(country.alpha3Code === border){
              countryBorders.style.display = "block";
@@ -73,7 +75,7 @@ window.onload = function(){
             }
           }
         }
-      }
+      
     }
 
 
@@ -128,6 +130,13 @@ window.onload = function(){
     var region = regionSelect.selectedOptions[0].innerText;
     if (region === "Other"){
       region = "";
+    }
+    if (region === "Filter by Region:"){
+      for(country of countries){
+        var listItem = document.createElement("option");
+        listItem.innerText = country.name;
+        select.appendChild(listItem);
+      }
     }
     for(country of countries){
       if(country.region === region){
