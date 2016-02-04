@@ -13,8 +13,9 @@ window.onload = function(){
 
   var select = document.getElementById('countryDropdown');
   var regionSelect = document.getElementById('regionDropdown');
-  var countryInfo = document.getElementById('countryInfo');
   var bordersTitle = document.getElementById('bordersTitle');
+  var map = document.getElementById('map');
+  var info = document.getElementById('info');
 
   if(countryBorders.innerText === ""){
     countryBorders.style.display = "none";
@@ -25,21 +26,30 @@ window.onload = function(){
   var countryToLoad = JSON.parse(JSONcountry);
 
   var makeList = function(name, population, capital){
-    countryInfo.style.display = "block";
-    makeListItem("Country: ", name);
-    makeListItem("Capital: ", capital);
-    makeListItem("Population: ", population);
+    population = Number(population).toLocaleString();
+    return "<h3>Country: " + name + "<br>" +
+    "Capital: " + capital + "<br>" + 
+    "Population: " + population + "</h3>";
   }
 
-  var makeListItem = function(description, data){
-    var li = document.createElement('li');
-    li.innerText = description + data;
-    countryInfo.appendChild(li);
-  }
+  var makeMap = function(country){
+    var content = makeList(country.name, country.population, country.capital);
+      info.innerHTML = "";
+    if(country.latlng != false){
+      map.style.display = "block";
+      var coords = { lat: country.latlng[0], lng: country.latlng[1]};
+      var newmap = new Map(coords, 5);
+      newmap.addInfoWindow(coords, content);
+    }
+    else{
+      map.style.display = "none";
+      info.innerHTML = content;
 
+    }
+  }
 
   if (countryToLoad) {
-    makeList(countryToLoad.countryname, Number(countryToLoad.countrypopulation).toLocaleString(), countryToLoad.countrycapital);
+    makeMap(countryToLoad);
   }
   
 
@@ -55,77 +65,78 @@ window.onload = function(){
     var countries = JSON.parse(request.responseText);
 
     var makeBordersItems = function(country){
-      
-      // if(country.borders == false){
-      //   countryBorders.style.display = "none";
-      //   bordersTitle.style.display = "none";
-      // }
 
-      
-        var borders = country.borders
-        for(var border of borders){
-
-          for (country of countries){
-            if(country.alpha3Code === border){
-             countryBorders.style.display = "block";
-             bordersTitle.style.display = "inline-block";
-             var button = document.createElement('button');
-             button.innerText = country.name;
-             countryBorders.appendChild(button);
-            }
-          }
-        }
-      
-    }
-
-
-    makeBordersItems(countryToLoad);
-
-    for(country of countries){
-      var listItem = document.createElement("option");
-      listItem.innerText = country.name;
-      select.appendChild(listItem);
-
-      if(!regions.contains(country.region)){
-        regions.push(country.region);
+      if(country.borders == false){
+        countryBorders.style.display = "none";
+        bordersTitle.style.display = "none";
+        return;
       }
-    }   
 
-    for(region of regions){
-      var listItem = document.createElement("option");
-      listItem.innerText = region || "Other";
-      regionSelect.appendChild(listItem);
-    }
+      var borders = country.borders
+      for(var border of borders){
 
-
-    var loadCountryData = function(){
-
-      var name = select.selectedOptions[0].innerText;
-      countryInfo.innerText = "";
-      countryBorders.innerText = "";
-
-      for(country of countries){
-        if(country.name == name){
-          var population = country.population;
-          var capital = country.capital;
-          var borders = country.borders;
-          var countryToSave = {
-            countryname: name,
-            countrypopulation: population,
-            countrycapital: capital,
-            borders: borders
-          }
-
-          var countryString = JSON.stringify(countryToSave);
-          localStorage.setItem("saved country", countryString);
-
-          makeList(name, Number(population).toLocaleString(), capital);
-          makeBordersItems(country);
+        for (country of countries){
+          if(country.alpha3Code === border){
+           countryBorders.style.display = "block";
+           bordersTitle.style.display = "inline-block";
+           var button = document.createElement('button');
+           button.innerText = country.name;
+           countryBorders.appendChild(button);
+         }
        }
      }
+
    }
 
-   var filterCountries = function(){
+   if(countryToLoad){
+   makeBordersItems(countryToLoad);
+    }
+
+   for(country of countries){
+    var listItem = document.createElement("option");
+    listItem.innerText = country.name;
+    select.appendChild(listItem);
+
+    if(!regions.contains(country.region)){
+      regions.push(country.region);
+    }
+  }   
+
+  for(region of regions){
+    var listItem = document.createElement("option");
+    listItem.innerText = region || "Other";
+    regionSelect.appendChild(listItem);
+  }
+
+
+  var loadCountryData = function(){
+
+    var name = select.selectedOptions[0].innerText;
+    countryBorders.innerText = "";
+
+    for(country of countries){
+      if(country.name == name){
+        var population = country.population;
+        var capital = country.capital;
+        var borders = country.borders;
+        var countryToSave = {
+          name: name,
+          population: population,
+          capital: capital,
+          borders: borders,
+          latlng: country.latlng
+        }
+
+        var countryString = JSON.stringify(countryToSave);
+        localStorage.setItem("saved country", countryString);
+
+        makeBordersItems(country);
+        makeMap(country);
+      }
+    }
+  }
+
+  var filterCountries = function(){
     select.innerHTML = "";
     var region = regionSelect.selectedOptions[0].innerText;
     if (region === "Other"){

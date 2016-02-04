@@ -7,6 +7,13 @@ body {
 
 }
 
+
+#map {
+  height: 500px;
+  width: 500px;
+  display: none;
+}
+
 .box {
   width: 500px;
   margin: 10% auto;
